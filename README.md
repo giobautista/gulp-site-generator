@@ -3,28 +3,28 @@ Simple yet powerfull Static Site Generator using Gulp automation. The included e
 
 ## Getting started
 ```console
-$ git clone https://github.com/giobautista/gulp-site-generator myproject
+git clone https://github.com/giobautista/gulp-site-generator myproject
 ```
 
 ## Install
 ```console
-$ npm install
+npm install
 ```
 
 ## Commands
 Generate static site from `src` directory
 ```console
-$ gulp
+gulp
 ```
 
 Generate only HTML, CSS, JS or optimize Images
 ```console
-$ gulp html|css|js|images
+gulp html|css|js|images
 ```
 
 Gulp can also watch changes made from and to `*.scss` and `*.hbs` files then recompile/regenerate them.
 ```console
-$ gulp watch
+gulp watch
 ```
 
 # Directory structure
