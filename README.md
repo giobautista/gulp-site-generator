@@ -2,28 +2,28 @@
 Simple yet powerfull Static Site Generator using Gulp automation. The included example site project uses Bootstrap 5 CSS Framework for styling.
 
 ## Getting started
-```console
+```
 git clone https://github.com/giobautista/gulp-site-generator myproject
 ```
 
 ## Install
-```console
+```
 npm install
 ```
 
 ## Commands
 Generate static site from `src` directory
-```console
+```
 gulp
 ```
 
 Generate only HTML, CSS, JS or optimize Images
-```console
+```
 gulp html|css|js|images
 ```
 
 Gulp can also watch changes made from and to `*.scss` and `*.hbs` files then recompile/regenerate them.
-```console
+```
 gulp watch
 ```
 
