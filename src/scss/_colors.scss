@@ -1,0 +1,30 @@
+/**
+SOCIAL COLORS
+ */
+@each $color, $value in $social-colors {
+  .bg-#{"" + $color} {
+    color: #fff !important;
+    background: $value !important;
+  }
+
+  .text-#{"" + $color} {
+    color: $value !important;
+  }
+}
+
+// BACKGROUND COLORS
+@each $color, $value in map-merge($colors, (dark: $dark, muted: $text-muted, white: $white)) {
+  .bg-#{"" + $color} {
+    background: $value;
+  }
+
+  .text-#{"" + $color} {
+    color: $value !important;
+  }
+
+  .bg-#{"" + $color}-lt {
+    color: $value !important;
+    background: theme-color-lighter($value, true) !important;
+  }
+}
+
