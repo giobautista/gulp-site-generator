@@ -4,6 +4,7 @@ Simple yet powerfull Static Site Generator using Gulp automation. The included e
 ## Getting started
 ```
 git clone https://github.com/giobautista/gulp-site-generator myproject
+cd myproject
 ```
 
 ## Install
@@ -11,20 +12,9 @@ git clone https://github.com/giobautista/gulp-site-generator myproject
 npm install
 ```
 
-## Commands
-Generate static site from `src` directory
+## Begin compiling
 ```
 gulp
-```
-
-Generate only HTML, CSS, JS or optimize Images
-```
-gulp html|css|js|images
-```
-
-Gulp can also watch changes made from and to `*.scss` and `*.hbs` files then recompile/regenerate them.
-```
-gulp watch
 ```
 
 # Directory structure
@@ -33,22 +23,23 @@ Below is an example of what this tree structure might look like:
 ## Input
 ```
 src/
-├── images
-│    └── pexels-maksim-goncharenok-4421290.jpg
-├── js
-│    └── script.js
+├── assets
+│    ├── images
+│    │   └── pexels-maksim-goncharenok-4421290.jpg
+│    ├── js
+│    │   └── script.js
+│    └── scss
+│        ├── _colors.scss
+│        ├── _variables.scss
+│        └── bootstrap.scss
 ├── layouts
-│    └── base.hbs
-├── pages
-│   ├── support
-│   │   └── contact.hbs
-│   ├── features.hbs
-│   ├── index.hbs
-│   └── pricing.hbs
-└── scss
-    ├── _colors.scss
-    ├── _variables.scss
-    └── bootstrap.scss
+│    └── default.hbs
+└── pages
+    ├── support
+    │   └── contact.hbs
+    ├── features.hbs
+    ├── index.hbs
+    └── pricing.hbs
 ```
 
 ## Output
