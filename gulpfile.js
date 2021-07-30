@@ -20,12 +20,7 @@ const del           = require('del');
 const chalk         = require('chalk');
 const log           = console.log;
 
-// DELETE DIST FOLDER
-function cleanDist(done) {
-  log(chalk.red.bold('---------------REMOVING OLD FILES FROM DIST---------------'));
-  del.sync('dist');
-  return done();
-}
+// ------------ DEVELOPMENT TASKS -------------
 
 // COMPILE HTML
 function compileHTML() {
@@ -68,7 +63,8 @@ function compileSCSS() {
     .pipe(dest('dist/assets/css/'))
     .pipe(cleanCss())
     .pipe(rename({ suffix: '.min' }))
-    .pipe(dest('dist/assets/css/'))
+    .pipe(dest('dist/assets/css'))
+    .pipe(browserSync.stream());
 }
 
 // COMPILE AND CONCAT JAVASCRIPT
@@ -79,8 +75,21 @@ function compileJS() {
     .pipe(minify())
     .pipe(sourcemaps.init())
     .pipe(sourcemaps.write('.'))
-    .pipe(dest('dist/assets/js'));
+    .pipe(dest('dist/assets/js'))
+    .pipe(browserSync.stream());
 };
+
+// ------------ PRODUCTION TASKS -------------
+
+
+// ------------ OTHER TASKS -------------
+
+// DELETE DIST FOLDER
+function cleanDist(done) {
+  log(chalk.red.bold('---------------REMOVING OLD FILES FROM DIST---------------'));
+  del.sync('dist');
+  return done();
+}
 
 // RESET PANINI'S CACHE OF LAYOUTS AND PARTIALS
 function resetPages(done) {
