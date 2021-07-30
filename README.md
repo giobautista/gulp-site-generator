@@ -24,14 +24,14 @@ Below is an example of what this tree structure might look like:
 ```
 src/
 ├── assets
-│    ├── images
-│    │   └── pexels-maksim-goncharenok-4421290.jpg
-│    ├── js
-│    │   └── script.js
-│    └── scss
-│        ├── _colors.scss
-│        ├── _variables.scss
-│        └── bootstrap.scss
+│   ├── images
+│   │   └── pexels-maksim-goncharenok-4421290.jpg
+│   ├── js
+│   │   └── script.js
+│   └── scss
+│       ├── _colors.scss
+│       ├── _variables.scss
+│       └── bootstrap.scss
 ├── layouts
 │    └── default.hbs
 └── pages
