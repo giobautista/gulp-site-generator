@@ -20,8 +20,6 @@ const del           = require('del');
 const chalk         = require('chalk');
 const log           = console.log;
 
-// ------------ DEVELOPMENT TASKS -------------
-
 // COMPILE HTML
 function compileHTML() {
   log(chalk.red.bold('---------------COMPILING HTML WITH PANINI---------------'));
@@ -78,11 +76,6 @@ function compileJS() {
     .pipe(dest('dist/assets/js'))
     .pipe(browserSync.stream());
 };
-
-// ------------ PRODUCTION TASKS -------------
-
-
-// ------------ OTHER TASKS -------------
 
 // DELETE DIST FOLDER
 function cleanDist(done) {
