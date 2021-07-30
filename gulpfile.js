@@ -1,82 +1,113 @@
-var gulp          = require('gulp');
-var scpClient     = require('scp2');
-var sass          = require('gulp-sass')(require('sass'));
-var sourcemaps    = require('gulp-sourcemaps');
-var cleanCss      = require('gulp-clean-css');
-var postcss       = require('gulp-postcss');
-var handlebars    = require('gulp-compile-handlebars');
-var rename        = require('gulp-rename');
-var autoprefixer  = require('autoprefixer');
-var imagemin      = require('gulp-imagemin');
-var minify        = require('gulp-minify');
-var concat        = require('gulp-concat');
+const {
+  src,
+  dest,
+  watch,
+  series
+}                   = require('gulp');
+const sass          = require('gulp-sass')(require('sass'));
+const sourcemaps    = require('gulp-sourcemaps');
+const cleanCss      = require('gulp-clean-css');
+const postcss       = require('gulp-postcss');
+const rename        = require('gulp-rename');
+const autoprefixer  = require('autoprefixer');
+const imagemin      = require('gulp-imagemin');
+const minify        = require('gulp-minify');
+const concat        = require('gulp-concat');
+const panini        = require('panini');
+const newer         = require('gulp-newer');
+const browserSync   = require('browser-sync').create();
+const del           = require('del');
+const chalk         = require('chalk');
+const log           = console.log;
 
-// Deploy using SSH
-function deploySCP2() {
-  return scpClient.scp('./dist', {
-    host: 'host',
-    username: 'username',
-    password: 'password',
-    path: '/remote/path'
-  }, function (err) { })
+// COMPILE HTML
+function compileHTML() {
+  log(chalk.red.bold('---------------COMPILING HTML WITH PANINI---------------'));
+  panini.refresh();
+  return src('src/pages/**/*.html')
+    .pipe(panini({
+      root: 'src/pages/',
+      layouts: 'src/layouts/',
+      // pageLayouts: {
+      // All pages inside src/pages/blog will use the blog.html layout
+      //     'blog': 'blog'
+      // }
+      partials: 'src/partials/',
+      helpers: 'src/helpers/',
+      data: 'src/data/'
+    }))
+    .pipe(dest('dist'))
+    .pipe(browserSync.stream());
 }
 
-// Build HTML Pages
-function buildHTML() {
-  return gulp.src('./src/pages/**/*.{hbs,handlebars,html}')
-    .pipe(handlebars({}, {
-      ignorePartials: true,
-      batch: ['./src/partials', './src/layouts']
-    }))
-    .pipe(rename({
-      extname: '.html'
-    }))
-    .pipe(gulp.dest('./dist'));
+// COPIES AND OPTIMIZES IMAGES TO DIST
+function copyImages() {
+  log(chalk.red.bold('---------------OPTIMIZING IMAGES---------------'));
+  return src(['src/assets/images/**/*.+(png|jpg|jpeg|gif|svg)'])
+    .pipe(newer('dist/assets/images'))
+    .pipe(imagemin())
+    .pipe(dest('dist/assets/images'))
+    .pipe(browserSync.stream());
 };
 
-// Compile SASS
-function compileCSS() {
-  return gulp.src(['./src/scss/*.scss'])
+// COMPILE AND CONCAT CSS
+function compileSCSS() {
+  log(chalk.red.bold('---------------COMPILING CSS---------------'));
+  return src(['src/assets/scss/*.scss'])
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))
     .pipe(postcss([autoprefixer()]))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('./dist/assets/css/'))
+    .pipe(dest('dist/assets/css/'))
     .pipe(cleanCss())
     .pipe(rename({ suffix: '.min' }))
-    .pipe(gulp.dest('./dist/assets/css/'))
+    .pipe(dest('dist/assets/css'))
+    .pipe(browserSync.stream());
 }
 
-// Compile JavaScript
+// COMPILE AND CONCAT JAVASCRIPT
 function compileJS() {
-  return gulp.src(['./src/js/*.js'])
+  log(chalk.red.bold('---------------COMPILING JS---------------'));
+  return src(['src/assets/js/*.js'])
     .pipe(concat('all.js'))
     .pipe(minify())
     .pipe(sourcemaps.init())
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('./dist/assets/js'));
+    .pipe(dest('dist/assets/js'))
+    .pipe(browserSync.stream());
 };
 
-// Optimize Images
-function optimizeImages() {
-  return gulp.src(['./src/images/**/*'])
-    .pipe(imagemin())
-    .pipe(gulp.dest('./dist/assets/images'));
-};
-
-// Watchers
-function watcher() {
-  gulp.watch(['./src/layouts/*.hbs', './src/partials/*.hbs', './src/pages/*.hbs'], gulp.series(buildHTML));
-  gulp.watch(['./src/scss/*.scss'], gulp.series(compileCSS));
-  gulp.watch(['./src/js/*.js'], gulp.series(compileJS));
+// DELETE DIST FOLDER
+function cleanDist(done) {
+  log(chalk.red.bold('---------------REMOVING OLD FILES FROM DIST---------------'));
+  del.sync('dist');
+  return done();
 }
 
-// Gulp Commands
-// gulp watch|html|css|js|images
-// exports.deploy  = deploySCP2;
-exports.watch   = gulp.series(buildHTML, compileCSS, compileJS, optimizeImages, watcher);
-exports.html    = buildHTML;
-exports.css     = compileCSS;
-exports.js      = compileJS;
-exports.images  = optimizeImages;
-exports.default = gulp.series(buildHTML, compileCSS, compileJS, optimizeImages);
+// RESET PANINI'S CACHE OF LAYOUTS AND PARTIALS
+function resetPages(done) {
+  log(chalk.red.bold('---------------CLEARING PANINI CACHE---------------'));
+  panini.refresh();
+  done();
+}
+
+// BROWSER SYNC
+function browserSyncInit(done) {
+  log(chalk.red.bold('---------------BROWSER SYNC INIT---------------'));
+  browserSync.init({
+    server: './dist',
+    port: 8088, // default 3000
+    open: false, // default true
+  });
+  return done();
+}
+
+// WATCH FILES
+function watchFiles() {
+  watch('src/**/*.html', compileHTML);
+  watch(['src/assets/scss/**/*.scss', 'src/assets/scss/*.scss'], compileSCSS);
+  watch('src/assets/js/*.js', compileJS);
+  watch('src/assets/images/**/*', copyImages);
+}
+
+exports.default = series(cleanDist, copyImages, compileHTML, compileSCSS, compileJS, resetPages, browserSyncInit, watchFiles);
