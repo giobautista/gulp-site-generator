@@ -14,16 +14,16 @@ var concat        = require('gulp-concat');
 // Deploy using SSH
 function deploySCP2() {
   return scpClient.scp('./dist', {
-    "host": "host",
-    "username": "username",
-    "password": "password",
-    "path": "/remote/path"
-  }, function (err) { console.log(err) })
+    host: 'host',
+    username: 'username',
+    password: 'password',
+    path: '/remote/path'
+  }, function (err) { })
 }
 
 // Build HTML Pages
 function buildHTML() {
-  return gulp.src('./src/pages/**/*.hbs')
+  return gulp.src('./src/pages/**/*.{hbs,handlebars,html}')
     .pipe(handlebars({}, {
       ignorePartials: true,
       batch: ['./src/partials', './src/layouts']
