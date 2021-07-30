@@ -1,4 +1,4 @@
-# gulp-site-generator
+# Gulp Site Generator
 Simple yet powerfull Static Site Generator using Gulp automation. The included example site project uses Bootstrap 5 CSS Framework for styling.
 
 ## Getting started
@@ -8,7 +8,7 @@ cd myproject
 npm install
 ```
 
-### Begin compiling
+## Start compiling
 ```
 gulp
 ```
@@ -29,7 +29,7 @@ src/
 │       ├── _variables.scss
 │       └── bootstrap.scss
 ├── layouts
-│    └── default.hbs
+│   └── default.hbs
 └── pages
     ├── support
     │   └── contact.hbs
