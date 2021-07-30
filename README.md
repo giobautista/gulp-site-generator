@@ -5,14 +5,10 @@ Simple yet powerfull Static Site Generator using Gulp automation. The included e
 ```
 git clone https://github.com/giobautista/gulp-site-generator myproject
 cd myproject
-```
-
-## Install
-```
 npm install
 ```
 
-## Begin compiling
+### Begin compiling
 ```
 gulp
 ```
