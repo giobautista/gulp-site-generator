@@ -2,8 +2,7 @@ const {
   src,
   dest,
   watch,
-  series,
-  parallel
+  series
 }                   = require('gulp');
 const sass          = require('gulp-sass')(require('sass'));
 const sourcemaps    = require('gulp-sourcemaps');
@@ -14,7 +13,6 @@ const autoprefixer  = require('autoprefixer');
 const imagemin      = require('gulp-imagemin');
 const minify        = require('gulp-minify');
 const concat        = require('gulp-concat');
-// ***
 const panini        = require('panini');
 const newer         = require('gulp-newer');
 const browserSync   = require('browser-sync').create();
@@ -95,7 +93,9 @@ function resetPages(done) {
 function browserSyncInit(done) {
   log(chalk.red.bold('---------------BROWSER SYNC INIT---------------'));
   browserSync.init({
-    server: './dist'
+    server: './dist',
+    port: 8088, // default 3000
+    open: false, // default true
   });
   return done();
 }
@@ -108,4 +108,4 @@ function watchFiles() {
   watch('src/assets/images/**/*', copyImages);
 }
 
-exports.development = series(cleanDist, copyImages, compileHTML, compileSCSS, compileJS, resetPages, browserSyncInit, watchFiles);
+exports.default = series(cleanDist, copyImages, compileHTML, compileSCSS, compileJS, resetPages, browserSyncInit, watchFiles);
