@@ -9,8 +9,13 @@ npm install
 ```
 
 ## Start compiling
+
 ```
 gulp
+```
+or
+```
+gulp production
 ```
 
 # Directory structure

@@ -14,6 +14,7 @@ const imagemin      = require('gulp-imagemin');
 const minify        = require('gulp-minify');
 const concat        = require('gulp-concat');
 const panini        = require('panini');
+const htmlreplace   = require('gulp-html-replace');
 const newer         = require('gulp-newer');
 const browserSync   = require('browser-sync').create();
 const del           = require('del');
@@ -107,6 +108,16 @@ function createSourceMaps() {
     .pipe(browserSync.stream());
 };
 
+function renameAssets() {
+  log(chalk.red.bold('---------------RENAMING ASSETS---------------'));
+  return src('dist/**/*.html')
+    .pipe(htmlreplace({
+      'css': 'assets/css/bootstrap.min.css',
+      'js': 'assets/js/all.min.js'
+    }))
+    .pipe(dest('dist'))
+}
+
 // ---------------EXTRA TASKS---------------
 
 // DELETE DIST FOLDER
@@ -143,4 +154,4 @@ function watchFiles() {
 }
 
 exports.default = series(cleanDist, copyImages, compileHTML, compileSCSS, compileJS, resetPages, browserSyncInit, watchFiles);
-exports.production = series(cleanDist, copyImages, compileHTML, compileSCSS, minifyCSS, compileJS, minifyJS, createSourceMaps, resetPages, browserSyncInit);
+exports.production = series(cleanDist, copyImages, compileHTML, compileSCSS, minifyCSS, compileJS, minifyJS, createSourceMaps, renameAssets, resetPages, browserSyncInit);
