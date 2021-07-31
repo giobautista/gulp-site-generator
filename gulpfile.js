@@ -20,6 +20,8 @@ const del           = require('del');
 const chalk         = require('chalk');
 const log           = console.log;
 
+// ---------------DEVELOPMENT TASKS---------------
+
 // COMPILE HTML
 function compileHTML() {
   log(chalk.red.bold('---------------COMPILING HTML WITH PANINI---------------'));
@@ -54,13 +56,8 @@ function copyImages() {
 function compileSCSS() {
   log(chalk.red.bold('---------------COMPILING CSS---------------'));
   return src(['src/assets/scss/*.scss'])
-    .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))
     .pipe(postcss([autoprefixer()]))
-    .pipe(sourcemaps.write('.'))
-    .pipe(dest('dist/assets/css/'))
-    .pipe(cleanCss())
-    .pipe(rename({ suffix: '.min' }))
     .pipe(dest('dist/assets/css'))
     .pipe(browserSync.stream());
 }
@@ -70,12 +67,47 @@ function compileJS() {
   log(chalk.red.bold('---------------COMPILING JS---------------'));
   return src(['src/assets/js/*.js'])
     .pipe(concat('all.js'))
-    .pipe(minify())
-    .pipe(sourcemaps.init())
-    .pipe(sourcemaps.write('.'))
     .pipe(dest('dist/assets/js'))
     .pipe(browserSync.stream());
 };
+
+
+// ---------------PRODUCTION TASKS ---------------
+
+function minifyCSS() {
+  log(chalk.red.bold('---------------MINIFYING CSS---------------'));
+  return src('dist/assets/css/*.css')
+    .pipe(cleanCss())
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(dest('dist/assets/css'))
+    .pipe(browserSync.stream());
+}
+
+function minifyJS() {
+  log(chalk.red.bold('---------------MINIFYING JS---------------'));
+  return src('dist/assets/js/*.js')
+    .pipe(minify({
+      ext: {
+        min: '.min.js'
+      }
+    }))
+    .pipe(dest('dist/assets/js'))
+    .pipe(browserSync.stream());
+
+}
+
+function createSourceMaps() {
+  log(chalk.red.bold('---------------CREATING CSS AND JS SOURCE MAPS---------------'));
+  return src(['dist/assets/js/*.js', 'dist/assets/css/*.css'])
+    .pipe(sourcemaps.init())
+    .pipe(sourcemaps.write('.'))
+    .pipe(dest(function (file) {
+      return file.base;
+    }))
+    .pipe(browserSync.stream());
+};
+
+// ---------------EXTRA TASKS---------------
 
 // DELETE DIST FOLDER
 function cleanDist(done) {
@@ -111,3 +143,4 @@ function watchFiles() {
 }
 
 exports.default = series(cleanDist, copyImages, compileHTML, compileSCSS, compileJS, resetPages, browserSyncInit, watchFiles);
+exports.production = series(cleanDist, copyImages, compileHTML, compileSCSS, minifyCSS, compileJS, minifyJS, createSourceMaps, resetPages, browserSyncInit);
