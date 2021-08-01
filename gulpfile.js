@@ -147,7 +147,7 @@ function browserSyncInit(done) {
 
 // WATCH FILES
 function watchFiles() {
-  watch('src/**/*.html', compileHTML);
+  watch(['src/**/*.html', 'src/data/**/*.json'], compileHTML);
   watch(['src/assets/scss/**/*.scss', 'src/assets/scss/*.scss'], compileSCSS);
   watch('src/assets/js/*.js', compileJS);
   watch('src/assets/images/**/*', copyImages);
