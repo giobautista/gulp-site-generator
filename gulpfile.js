@@ -63,6 +63,18 @@ function compileSCSS() {
     .pipe(browserSync.stream());
 }
 
+// COPY BOOTSTRAP JAVASCRIPTS TO DIST/
+function copyJS() {
+  log(chalk.red.bold('---------------COPYING BOOTSTRAP JS---------------'));
+  return src([
+    'node_modules/bootstrap/dist/js/bootstrap.bundle.js',
+    'node_modules/bootstrap/dist/js/bootstrap.esm.js',
+    'node_modules/bootstrap/dist/js/bootstrap.js'
+  ])
+  .pipe(dest('dist/assets/js'))
+  .pipe(browserSync.stream());
+}
+
 // COMPILE AND CONCAT JAVASCRIPT
 function compileJS() {
   log(chalk.red.bold('---------------COMPILING JS---------------'));
@@ -113,6 +125,7 @@ function renameAssets() {
   return src('dist/**/*.html')
     .pipe(htmlreplace({
       'css': 'assets/css/bootstrap.min.css',
+      'bsjs': 'assets/js/bootstrap.bundle.min.js',
       'js': 'assets/js/all.min.js'
     }))
     .pipe(dest('dist'))
@@ -153,5 +166,7 @@ function watchFiles() {
   watch('src/assets/images/**/*', copyImages);
 }
 
-exports.default = series(cleanDist, copyImages, compileHTML, compileSCSS, compileJS, resetPages, browserSyncInit, watchFiles);
-exports.production = series(cleanDist, copyImages, compileHTML, compileSCSS, minifyCSS, compileJS, minifyJS, createSourceMaps, renameAssets, resetPages, browserSyncInit);
+exports.default = series(cleanDist, copyImages, compileHTML, compileSCSS, copyJS, compileJS, resetPages, browserSyncInit, watchFiles);
+exports.production = series(cleanDist, copyImages, compileHTML, compileSCSS, minifyCSS, copyJS, compileJS, minifyJS, createSourceMaps, renameAssets, resetPages, browserSyncInit);
+exports.css = compileSCSS;
+exports.vendor = copyJS;

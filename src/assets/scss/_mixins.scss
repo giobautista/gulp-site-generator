@@ -1,0 +1,11 @@
+@function theme-color-lighter($color, $transparent: false) {
+  @if ($transparent) {
+    @return rgba($color, .1);
+  } @else {
+    @return tint-color($color, 9%);
+  }
+}
+
+@function theme-color-darker($color) {
+  @return shade-color($color, 10%);
+}
