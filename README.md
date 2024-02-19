@@ -1,5 +1,5 @@
 # Gulp Site Generator with Bootstrap
-Simple yet powerful static site generator using Gulp making. Making development with ease utilizing TailwindCSS.
+Simple yet powerful static site generator using Gulp automation and Pnini. The included example site project uses Bootstrap 5 CSS Framework for styling.
 
 ## Getting Started
 1. Copy repository
@@ -16,12 +16,12 @@ npm install
 Start compiling
 1. Initiate development compilation and server for live preview.
 ```
-npm run dev
+gulp
 ```
 
 2. To initiate generating minified files for production.
 ```
-npm run build
+gulp build
 ```
 
 ## Configuration
@@ -29,7 +29,7 @@ To change the path of files and destination folder, edit options in `config.js` 
 
 ```
 config: {
-        port: 5055,
+        port: 8088,
     },
     paths: {
         src: {
@@ -58,9 +58,14 @@ src/
 │   ├── js
 │   └── scss
 ├── data
+│   └── global.yml
 ├── layouts
+│   └── default.hbs
 ├── pages
+│   └── index.html
 └── partials
+    ├── footer.hbs
+    └── navbar.hbs
 ```
 
 ### Destination
