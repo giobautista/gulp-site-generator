@@ -1,0 +1,13 @@
+site:
+  name: Gulp Site
+
+navbar:
+  - navbar-item:
+    title: Features
+    link: features.html
+  - navbar-item:
+    title: Pricing
+    link: pricing.html
+  - navbar-item:
+    title: Support
+    link: support/contact.html

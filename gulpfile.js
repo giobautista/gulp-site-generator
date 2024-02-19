@@ -1,172 +1,204 @@
 const {
-  src,
-  dest,
-  watch,
-  series
-}                   = require('gulp');
-const sass          = require('gulp-sass')(require('sass'));
-const sourcemaps    = require('gulp-sourcemaps');
-const cleanCss      = require('gulp-clean-css');
-const postcss       = require('gulp-postcss');
-const rename        = require('gulp-rename');
-const autoprefixer  = require('autoprefixer');
-const imagemin      = require('gulp-imagemin');
-const minify        = require('gulp-minify');
-const concat        = require('gulp-concat');
-const panini        = require('panini');
-const htmlreplace   = require('gulp-html-replace');
-const newer         = require('gulp-newer');
-const browserSync   = require('browser-sync').create();
-const del           = require('del');
-const chalk         = require('chalk');
-const log           = console.log;
+    src,
+    dest,
+    watch,
+    series,
+    parallel
+} = require('gulp');
+const sass = require('gulp-sass')(require('sass'));
+const sourcemaps = require('gulp-sourcemaps');
+const cleanCss = require('gulp-clean-css');
+const postcss = require('gulp-postcss');
+const rename = require('gulp-rename');
+const autoprefixer = require('autoprefixer');
+const imagemin = require('gulp-imagemin');
+const minify = require('gulp-minify');
+const concat = require('gulp-concat');
+const panini = require('panini');
+const htmlreplace = require('gulp-html-replace');
+const newer = require('gulp-newer');
+const browserSync = require('browser-sync').create();
+const del = require('del');
+const options = require('./config');
+const logSymbols = require('log-symbols');
+const log = console.log;
 
-// ---------------DEVELOPMENT TASKS---------------
+/**
+ * Development Tasks
+ */
 
 // COMPILE HTML
 function compileHTML() {
-  log(chalk.red.bold('---------------COMPILING HTML WITH PANINI---------------'));
-  panini.refresh();
-  return src('src/pages/**/*.html')
-    .pipe(panini({
-      root: 'src/pages/',
-      layouts: 'src/layouts/',
-      // pageLayouts: {
-      // All pages inside src/pages/blog will use the blog.html layout
-      //     'blog': 'blog'
-      // }
-      partials: 'src/partials/',
-      helpers: 'src/helpers/',
-      data: 'src/data/'
-    }))
-    .pipe(dest('dist'))
-    .pipe(browserSync.stream());
+    panini.refresh();
+    return src(options.paths.src.base + '/pages/**/*.{hbs,html}')
+        .pipe(panini({
+            root: options.paths.src.base + '/pages/',
+            layouts: options.paths.src.base + '/layouts/',
+            // pageLayouts: {
+            // All pages inside src/pages/blog will use the blog.html layout
+            //     'blog': 'blog'
+            // }
+            partials: options.paths.src.base + '/partials/',
+            helpers: options.paths.src.base + '/helpers/',
+            data: options.paths.src.base + '/data/'
+        }))
+        .pipe(dest(options.paths.dist.base))
+        .pipe(browserSync.stream());
 }
 
 // COPIES AND OPTIMIZES IMAGES TO DIST
 function copyImages() {
-  log(chalk.red.bold('---------------OPTIMIZING IMAGES---------------'));
-  return src(['src/assets/images/**/*.+(png|jpg|jpeg|gif|svg)'])
-    .pipe(newer('dist/assets/images'))
-    .pipe(imagemin())
-    .pipe(dest('dist/assets/images'))
-    .pipe(browserSync.stream());
+    return src(options.paths.src.img + '/**/*.{png,jpg,jpeg,gif,svg,ico}')
+        .pipe(newer(options.paths.dist.img))
+        .pipe(imagemin({ silent: true }))
+        .pipe(dest(options.paths.dist.img))
+        .pipe(browserSync.stream());
 };
 
 // COMPILE AND CONCAT CSS
 function compileSCSS() {
-  log(chalk.red.bold('---------------COMPILING CSS---------------'));
-  return src(['src/assets/scss/*.scss'])
-    .pipe(sass().on('error', sass.logError))
-    .pipe(postcss([autoprefixer()]))
-    .pipe(dest('dist/assets/css'))
+    return src(options.paths.src.css + '/**/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(postcss([autoprefixer()]))
+        .pipe(dest(options.paths.dist.css))
+        .pipe(browserSync.stream());
+}
+
+// COPY BOOTSTRAP ICON FONTS
+function copyFonts() {
+  return src(['node_modules/bootstrap-icons/font/fonts/bootstrap-icons.*'])
+    .pipe(dest(options.paths.dist.css + '/fonts'))
     .pipe(browserSync.stream());
 }
 
 // COPY BOOTSTRAP JAVASCRIPTS TO DIST/
-function copyJS() {
-  log(chalk.red.bold('---------------COPYING BOOTSTRAP JS---------------'));
-  return src([
-    'node_modules/bootstrap/dist/js/bootstrap.bundle.js',
-    'node_modules/bootstrap/dist/js/bootstrap.esm.js',
-    'node_modules/bootstrap/dist/js/bootstrap.js'
-  ])
-  .pipe(dest('dist/assets/js'))
-  .pipe(browserSync.stream());
+function vendorJS() {
+    return src([
+        'node_modules/@popperjs/core/dist/umd/popper.min.js',
+        'node_modules/@popperjs/core/dist/umd/popper.min.js.map',
+        'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
+        'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js.map'
+    ])
+        .pipe(dest(options.paths.dist.js + '/vendors'))
+        .pipe(browserSync.stream());
 }
 
 // COMPILE AND CONCAT JAVASCRIPT
 function compileJS() {
-  log(chalk.red.bold('---------------COMPILING JS---------------'));
-  return src(['src/assets/js/*.js'])
-    .pipe(concat('all.js'))
-    .pipe(dest('dist/assets/js'))
-    .pipe(browserSync.stream());
+    return src(options.paths.src.js + '/**/*.js')
+        .pipe(concat({ path: "app.js" }))
+        .pipe(dest(options.paths.dist.js))
+        .pipe(browserSync.stream());
 };
 
 
-// ---------------PRODUCTION TASKS ---------------
+/**
+ * Production Tasks
+ */
 
 function minifyCSS() {
-  log(chalk.red.bold('---------------MINIFYING CSS---------------'));
-  return src('dist/assets/css/*.css')
-    .pipe(cleanCss())
-    .pipe(rename({ suffix: '.min' }))
-    .pipe(dest('dist/assets/css'))
-    .pipe(browserSync.stream());
+    return src(options.paths.dist.css + '/*.css')
+        .pipe(cleanCss())
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(dest(options.paths.dist.css))
+        .pipe(browserSync.stream());
 }
 
 function minifyJS() {
-  log(chalk.red.bold('---------------MINIFYING JS---------------'));
-  return src('dist/assets/js/*.js')
-    .pipe(minify({
-      ext: {
-        min: '.min.js'
-      }
-    }))
-    .pipe(dest('dist/assets/js'))
-    .pipe(browserSync.stream());
-
+    return src(options.paths.dist.js + '/*.js')
+        .pipe(minify({
+            ext: {
+                min: '.min.js'
+            },
+            noSource: true
+        }))
+        .pipe(dest(options.paths.dist.js))
+        .pipe(browserSync.stream());
 }
 
 function createSourceMaps() {
-  log(chalk.red.bold('---------------CREATING CSS AND JS SOURCE MAPS---------------'));
-  return src(['dist/assets/js/*.js', 'dist/assets/css/*.css'])
-    .pipe(sourcemaps.init())
-    .pipe(sourcemaps.write('.'))
-    .pipe(dest(function (file) {
-      return file.base;
-    }))
-    .pipe(browserSync.stream());
+    return src([
+        options.paths.dist.js + '/*.js',
+        options.paths.dist.css + '/*.css',
+    ])
+        .pipe(sourcemaps.init())
+        .pipe(sourcemaps.write('.'))
+        .pipe(dest(function (file) {
+            return file.base;
+        }))
+        .pipe(browserSync.stream());
 };
 
 function renameAssets() {
-  log(chalk.red.bold('---------------RENAMING ASSETS---------------'));
-  return src('dist/**/*.html')
-    .pipe(htmlreplace({
-      'css': 'assets/css/bootstrap.min.css',
-      'bsjs': 'assets/js/bootstrap.bundle.min.js',
-      'js': 'assets/js/all.min.js'
-    }))
-    .pipe(dest('dist'))
+    return src(options.paths.dist.base + '/**/*.html')
+        .pipe(htmlreplace({
+            'css': 'assets/css/bootstrap.min.css',
+            'js': 'assets/js/app.min.js'
+        }))
+        .pipe(dest('dist'))
 }
 
-// ---------------EXTRA TASKS---------------
+/**
+ * Other Tasks
+ */
 
 // DELETE DIST FOLDER
 function cleanDist(done) {
-  log(chalk.red.bold('---------------REMOVING OLD FILES FROM DIST---------------'));
-  del.sync('dist');
-  return done();
+    del.sync(options.paths.dist.base);
+    return done();
 }
 
 // RESET PANINI'S CACHE OF LAYOUTS AND PARTIALS
 function resetPages(done) {
-  log(chalk.red.bold('---------------CLEARING PANINI CACHE---------------'));
-  panini.refresh();
-  done();
+    panini.refresh();
+    done();
 }
 
 // BROWSER SYNC
 function browserSyncInit(done) {
-  log(chalk.red.bold('---------------BROWSER SYNC INIT---------------'));
-  browserSync.init({
-    server: './dist',
-    port: 8088, // default 3000
-    open: false, // default true
-  });
-  return done();
+    browserSync.init({
+        server: options.paths.dist.base,
+        port: options.config.port || 5000, // default 5055
+        open: false, // default true
+    });
+    return done();
 }
 
 // WATCH FILES
 function watchFiles() {
-  watch(['src/**/*.html', 'src/data/**/*.json'], compileHTML);
-  watch(['src/assets/scss/**/*.scss', 'src/assets/scss/*.scss'], compileSCSS);
-  watch('src/assets/js/*.js', compileJS);
-  watch('src/assets/images/**/*', copyImages);
+    watch([
+        options.paths.src.base + '/**/*.{hbs,html}',
+        options.paths.src.base + '/data/**/*.{yml,json}',
+    ], compileHTML);
+    watch(options.paths.src.css + '/**/*.scss', compileSCSS);
+    watch(options.paths.src.js + '/*.js', compileJS);
+    watch(options.paths.src.img + '/**/*', copyImages);
+    console.log("\n\t" + logSymbols.info, "Watching for Changes..\n");
 }
 
-exports.default = series(cleanDist, copyImages, compileHTML, compileSCSS, copyJS, compileJS, resetPages, browserSyncInit, watchFiles);
-exports.production = series(cleanDist, copyImages, compileHTML, compileSCSS, minifyCSS, copyJS, compileJS, minifyJS, createSourceMaps, renameAssets, resetPages, browserSyncInit);
-exports.css = compileSCSS;
-exports.vendor = copyJS;
+// BUILD COMPLETE
+function buildFinish(done) {
+    done();
+    console.log(
+        "\n\t" + logSymbols.success,
+        `Production build is complete. Files are located at ${options.paths.dist.base}\n`
+    );
+}
+
+exports.default = series(
+    cleanDist,
+    parallel(copyImages, compileHTML, compileSCSS, copyFonts, vendorJS, compileJS),
+    resetPages,
+    browserSyncInit,
+    watchFiles
+);
+
+exports.build = series(
+    cleanDist,
+    parallel(copyImages, compileHTML, compileSCSS, copyFonts, vendorJS, compileJS),
+    parallel(minifyCSS, minifyJS),
+    createSourceMaps,
+    renameAssets,
+    resetPages,
+    buildFinish
+);

@@ -1,67 +1,74 @@
-# Gulp Site Generator
-Simple yet powerfull Static Site Generator using Gulp automation. The included example site project uses Bootstrap 5 CSS Framework for styling.
+# Gulp Site Generator with Bootstrap
+Simple yet powerful static site generator using Gulp making. Making development with ease utilizing TailwindCSS.
 
-## Getting started
+## Getting Started
+1. Copy repository
 ```
-git clone https://github.com/giobautista/gulp-site-generator myproject
-cd myproject
+gh repo clone giobautista/bootstrap-site-generator project-folder
+```
+
+2. Install dependencies
+```
 npm install
 ```
 
-## Start compiling
-
+## Usage
+Start compiling
+1. Initiate development compilation and server for live preview.
 ```
-gulp
-```
-or
-```
-gulp production
+npm run dev
 ```
 
-# Directory structure
+2. To initiate generating minified files for production.
+```
+npm run build
+```
+
+## Configuration
+To change the path of files and destination folder, edit options in `config.js` file.
+
+```
+config: {
+        port: 5055,
+    },
+    paths: {
+        src: {
+            base: "./src",
+            css: "./src/assets/scss",
+            js: "./src/assets/js",
+            img: "./src/assets/images"
+        },
+        dist: {
+            base: "./dist",
+            css: "./dist/assets/css",
+            js: "./dist/assets/js",
+            img: "./dist/assets/images"
+        }
+    }
+```
+
+## Directory Structure
 Below is an example of what this tree structure might look like:
 
-## Input
+### Source
 ```
 src/
-├── assets
+├── assets/
 │   ├── images
-│   │   └── pexels-maksim-goncharenok-4421290.jpg
 │   ├── js
-│   │   └── script.js
 │   └── scss
-│       ├── _colors.scss
-│       ├── _variables.scss
-│       └── bootstrap.scss
+├── data
 ├── layouts
-│   └── default.hbs
-└── pages
-    ├── support
-    │   └── contact.hbs
-    ├── features.hbs
-    ├── index.hbs
-    └── pricing.hbs
+├── pages
+└── partials
 ```
 
-## Output
+### Destination
 ```
 dist/
-├── assets
-│   ├── css
-│   │   ├── bootstrap.css
-│   │   ├── bootstrap.css.map
-│   │   ├── bootstrap.min.css.map
-│   │   └── bootstrap.min.css
+├── assets/
 │   ├── images
-│   │   └── pexels-maksim-goncharenok-4421290.jpg
-│   └── js
-│       ├── all-min.js
-│       ├── all-min.js.map
-│       ├── all.js
-│       └── all.js.map
-├── support
-│   └── contact.html
-├── features.html
-├── index.html
-└── pricing.html
+│   ├── js
+│   └── css
+└── index.html
 ```
